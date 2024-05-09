@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+        enableEdgeToEdge()
 
         Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(false)
         }
 
-  
+
 
         binding.nextButton.setOnClickListener {
             quizViewModel.moveToNext()
