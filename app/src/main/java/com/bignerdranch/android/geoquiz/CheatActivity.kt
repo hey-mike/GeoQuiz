@@ -1,47 +1,60 @@
 package com.bignerdranch.android.geoquiz
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.bignerdranch.android.geoquiz.ui.theme.GeoQuizTheme
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.bignerdranch.android.geoquiz.databinding.ActivityCheatBinding
 
-class CheatActivity : ComponentActivity() {
+private const val EXTRA_ANSWER_IS_TRUE =
+    "com.bignerdranch.android.geoquiz.answer_is_true"
+
+const val EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown"
+
+class CheatActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityCheatBinding
+    private var answerIsTrue = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            GeoQuizTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        binding = ActivityCheatBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+
+        binding.showAnswerButton.setOnClickListener {
+            val answerText = when {
+                answerIsTrue -> R.string.true_button
+                else -> R.string.false_button
             }
+            binding.answerTextView.setText(answerText)
+            setAnswerShownResult(true)
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun setAnswerShownResult(isAnswerShown: Boolean = false) {
+        val data = Intent().apply {
+            putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
+        }
+        setResult(Activity.RESULT_OK, data)
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GeoQuizTheme {
-        Greeting("Android")
+    companion object {
+        fun newIntent(packageContext: Context, answerIsTrue: Boolean): Intent {
+            return Intent(packageContext, CheatActivity::class.java).apply {
+                putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue)
+            }
+        }
     }
 }
